@@ -1,0 +1,40 @@
+---
+- name: Repository configuration
+  hosts: all
+  vars:
+    custom_pkg: simple-agent
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+
+    - name: Display package facts for the custom package
+      ansible.builtin.debug:
+        var: ansible_facts['packages'][custom_pkg]
+      when: custom_pkg in ansible_facts['packages']
+
+    - name: Ensure example repo exists
+      ansible.builtin.yum_repository:
+        name: example-internal
+        description: Example Inc. Internal repo
+        file: example
+        baseurl: http://serverb.lab.example.com/yum/repository/
+        gpgcheck: true
+
+    - name: Ensure repo key is installed
+      ansible.builtin.rpm_key:
+        key: http://serverb.lab.example.com/yum/repository/RPM-GPG-KEY-example
+        state: present
+
+    - name: Install example package
+      ansible.builtin.dnf:
+        name: "{{ custom_pkg }}"
+        state: present
+
+    - name: Gather package facts (post-install)
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Display package facts (post-install)
+      ansible.builtin.debug:
+        var: ansible_facts['packages'][custom_pkg]
+      when: custom_pkg in ansible_facts['packages']

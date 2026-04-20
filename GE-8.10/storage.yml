@@ -1,0 +1,24 @@
+---
+- name: Configure storage on webservers
+  hosts: webservers
+  tasks:
+    - name: Include the storage role from the RHEL system roles collection
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.storage
+      vars:
+        storage_pools:
+          - name: apache-vg
+            type: lvm
+            disks:
+              - CHANGE-ME
+            volumes:
+              - name: content-lv
+                size: "512m"
+                mount_point: "/var/www"
+                fs_type: xfs
+                state: present
+              - name: logs-lv
+                size: "1g"
+                mount_point: "/var/log/httpd"
+                fs_type: xfs
+                state: present

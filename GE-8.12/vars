@@ -1,0 +1,8 @@
+---
+network_connections:
+  - name: MODIFY-ME
+    type: ethernet
+    ip:
+      address:
+        - 192.168.0.12/24
+    state: up

@@ -1,0 +1,11 @@
+---
+ansible-navigator:
+  execution-environment:
+    image: utility.lab.example.com:5000/ansible-automation-platform-25/ee-supported-rhel8
+    pull:
+      policy: missing
+      arguments:
+        - "--tls-verify=false"
+  mode: stdout
+  playbook-artifact:
+    enable: false

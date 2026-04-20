@@ -1,0 +1,7 @@
+[webhosts]
+servera.lab.example.com
+serverc.lab.example.com
+
+[workstations]
+serverb.lab.example.com
+serverd.lab.example.com

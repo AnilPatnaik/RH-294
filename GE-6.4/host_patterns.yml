@@ -1,0 +1,8 @@
+---
+- name: Resolve host patterns
+  hosts: web1.na.example.com
+  gather_facts: false
+  tasks:
+    - name: Display managed hosts matching the host pattern
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}"

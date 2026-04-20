@@ -1,0 +1,13 @@
+---
+- name: List NICs with MAC Addresses
+  hosts: webservers
+  become: false
+  tasks:
+    - name: Display NICs and addresses
+      ansible.builtin.debug:
+        msg: "NIC: {{ item }} MAC Address: {{ ansible_facts[item]['macaddress'] }}"
+      loop: "{{ ansible_interfaces }}"
+      when:
+        - item != 'lo'
+        - ansible_facts[item] is defined
+        - ansible_facts[item].macaddress is defined

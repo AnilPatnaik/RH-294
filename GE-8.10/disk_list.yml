@@ -1,0 +1,11 @@
+---
+- name: List disks with sizes
+  hosts: webservers
+  become: false
+  tasks:
+    - name: Display disk sizes
+      ansible.builtin.debug:
+        msg: "Disk: /dev/{{ item['key'] }}, Size: {{ item['value']['size'] }}"
+      loop: "{{ ansible_facts['devices'] | dict2items }}"
+      loop_control:
+        label: "/dev/{{ item['key'] }}"

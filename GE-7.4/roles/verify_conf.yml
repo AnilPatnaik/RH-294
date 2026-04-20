@@ -1,0 +1,14 @@
+---
+- name: Verify myvhost role configuration
+  hosts: webservers
+  gather_facts: false
+
+  tasks:
+    - name: "Read vhost config file content"
+      ansible.builtin.slurp:
+        src: /etc/httpd/conf.d/vhost.conf
+      register: vhost_config
+
+    - name: "Show vhost config file content"
+      ansible.builtin.debug:
+        var: (vhost_config['content'] | b64decode).splitlines()

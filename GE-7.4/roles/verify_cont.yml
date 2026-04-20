@@ -1,0 +1,14 @@
+---
+- name: Verify myvhost role content deployment
+  hosts: webservers
+  gather_facts: true
+
+  tasks:
+    - name: "Read index.html file content"
+      ansible.builtin.slurp:
+        src: /var/www/vhosts/{{ ansible_hostname }}/index.html
+      register: index_html_content
+
+    - name: "Show the content of the index.html file"
+      ansible.builtin.debug:
+        var: (index_html_content['content'] | b64decode).splitlines()

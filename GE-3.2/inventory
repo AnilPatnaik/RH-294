@@ -1,0 +1,11 @@
+[prod]
+servera.lab.example.com
+serverb.lab.example.com
+
+[dev]
+serverc.lab.example.com
+serverd.lab.example.com
+
+[allservers:children]
+prod
+dev

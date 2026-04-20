@@ -1,0 +1,28 @@
+---
+- name: Testing File Operations
+  hosts: serverc.lab.example.com
+  become: true
+  tasks: 
+    - name: Gathering stat of xferlog
+      ansible.builtin.stat: 
+        path: /var/log/xferlog
+      register: xferlog_info
+
+    - name: Printing the checksum
+      ansible.builtin.debug: 
+        var: xferlog_info['stat']['checksum']
+      when: xferlog_info['stat']['exists']
+
+    - name: Find all log files larger than 10k
+      ansible.builtin.find:
+        paths: /var/log/
+        patterns: "*.log"
+        recurse: true
+        size: 10000
+      register: found_logs
+
+    - name: Fetch all the files found
+      ansible.builtin.fetch:
+        src: "{{ item['path'] }}"
+        dest: ./
+      loop: "{{ found_logs['files'] }}"

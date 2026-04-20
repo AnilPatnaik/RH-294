@@ -1,0 +1,7 @@
+---
+- name: NIC Configuration
+  hosts: webservers
+  tasks:
+    - name: Include the network role from the RHEL system roles collection
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.network

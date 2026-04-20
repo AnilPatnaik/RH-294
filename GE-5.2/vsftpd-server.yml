@@ -1,0 +1,59 @@
+---
+- name: Setting FTP server
+  hosts: ftp_servers
+  become: true
+  vars:
+    ftp_package: vsftpd
+    ftp_config_file_dest: /etc/vsftpd/vsftpd.conf
+    ftp_service: vsftpd
+    firewall_ftp_service: ftp
+    ftp_user: demoftp
+    upload_path: /home/demoftp/upload
+  tasks:
+    - name: Install vsftpd package
+      ansible.builtin.dnf:
+        name: "{{ ftp_package }}"
+        state: present
+
+    - name: Modify single line in the FTP configuration file
+      ansible.builtin.lineinfile:
+        path: "{{ ftp_config_file_dest }}"
+        regexp: '^anonymous_enable='
+        line: 'anonymous_enable=YES'
+
+    - name: Enabling anonymous user access
+      ansible.builtin.blockinfile:
+        block: |
+          anon_upload_enable=YES
+          anon_mkdir_write_enable=YES
+          xferlog_file=/var/log/xferlog
+        path: "{{ ftp_config_file_dest }}"
+
+    - name: Starting and enabling FTP service
+      ansible.builtin.systemd_service:
+        name: "{{ ftp_service }}"
+        state: started
+        enabled: true
+
+    - name: Adding FTP service in firewall
+      ansible.posix.firewalld:
+        service: "{{ firewall_ftp_service }}"
+        immediate: true
+        permanent: true
+        state: enabled
+
+    - name: Create FTP demo upload directory
+      ansible.builtin.file:
+        path: "{{ upload_path }}"
+        state: directory
+        owner: "{{ ftp_user }}"
+        group: "{{ ftp_user }}"
+        mode: '0755'
+
+    - name: Creating a test file in FTP
+      ansible.builtin.copy:
+        src: files/testfile
+        dest: /home/demoftp/upload/
+        owner: "{{ ftp_user }}"
+        group: "{{ ftp_user }}"
+        mode: '0644'

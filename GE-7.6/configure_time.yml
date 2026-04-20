@@ -1,0 +1,7 @@
+---
+- name: Time Synchronization
+  hosts: webservers
+  tasks:
+    - name: Ensure time synchronization is configured
+      ansible.builtin.include_role:
+        name: redhat.rhel_system_roles.timesync

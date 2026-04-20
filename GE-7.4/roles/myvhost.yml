@@ -1,0 +1,7 @@
+---
+- name: Use myvhost role
+  hosts: webservers
+  tasks:
+    - name: Include myvhost role
+      ansible.builtin.include_role:
+        name: myvhost

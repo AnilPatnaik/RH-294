@@ -1,0 +1,43 @@
+---
+# tasks file for roles/myvhost
+
+- name: Ensure httpd is installed
+  ansible.builtin.dnf:
+    name: httpd
+    state: present
+
+- name: Ensure httpd is started and enabled
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: true
+
+- name: Allow HTTP traffic in the firewall
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
+    state: enabled
+  notify: Restart firewalld
+
+- name: The vhost file is installed
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/httpd/conf.d/vhost.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart httpd
+
+- name: Create the directory for the HTML content
+  ansible.builtin.file:
+    path: "/var/www/vhosts/{{ ansible_hostname }}"
+    state: directory
+    mode: '0755'
+
+- name: HTML content is installed
+  ansible.builtin.copy:
+    src: index.html
+    dest: "/var/www/vhosts/{{ ansible_hostname }}/index.html"
+    owner: root
+    group: root
+    mode: '0644'

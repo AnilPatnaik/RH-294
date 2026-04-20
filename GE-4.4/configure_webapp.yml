@@ -1,0 +1,70 @@
+---
+- name: Web application server is deployed
+  hosts:
+    - webapp
+
+  vars:
+    packages:
+      - nginx
+      - php-fpm
+      - firewalld
+    web_service: nginx
+    app_service: php-fpm
+    firewall_service: firewalld
+    firewall_service_rules:
+      - http
+    web_config_src: files/nginx.conf.standard
+    web_config_dst: /etc/nginx/nginx.conf
+    app_config_src: files/php-fpm.conf.standard
+    app_config_dst: /etc/php-fpm.conf
+
+  tasks:
+    - name: "Installing the packages"
+      ansible.builtin.dnf:
+        name: "{{ packages }}"
+        state: present
+
+    - name: The web configuration file has been deployed
+      ansible.builtin.copy:
+        src: "{{ web_config_src }}"
+        dest: "{{ web_config_dst }}"
+        mode: '0644'
+      notify:
+        - Restart web service
+
+    - name: The app configuration file has been deployed
+      ansible.builtin.copy:
+        src: "{{ app_config_src }}"
+        dest: "{{ app_config_dst }}"
+        mode: '0644'
+      notify:
+        - Restart app service
+
+    - name: Make sure services are running
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop:
+        - "{{ web_service }}"
+        - "{{ app_service }}"
+        - "{{ firewall_service }}"
+
+    - name: Allow services through the firewall
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        state: enabled
+        immediate: true
+        permanent: true
+      loop: "{{ firewall_service_rules }}"
+
+  handlers:
+    - name: Restart web service
+      ansible.builtin.systemd_service:
+        name: "{{ web_service }}"
+        state: restarted
+
+    - name: Restart app service
+      ansible.builtin.systemd_service:
+        name: "{{ app_service }}"
+        state: restarted

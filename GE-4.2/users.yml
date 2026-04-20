@@ -1,0 +1,36 @@
+---
+- name: Create users for datacenter_west
+  hosts: datacenter_west
+  become: true
+  vars:
+    prod_users:
+      - user: mary
+        group: wheel
+      - user: nick
+        group: kvm
+    dev_users:
+      - user: webdev
+        group: developer
+      - user: dbdev
+        group: developer
+
+  tasks:
+    - name: Display Selinux state
+      ansible.builtin.debug:
+        msg: "SELinux mode on {{ ansible_facts['fqdn'] }} is set to {{ ansible_facts['selinux']['mode'] }}"
+
+    - name: Create prod users
+      ansible.builtin.user:
+        name: "{{ item['user'] }}"
+        state: present
+        groups: "{{ item['group'] }}"
+      loop: "{{ prod_users }}"
+      when: ansible_facts['selinux']['mode'] == "enforcing"
+
+    - name: Create dev users
+      ansible.builtin.user:
+        name: "{{ item['user'] }}"
+        state: present
+        groups: "{{ item['group'] }}"
+      loop: "{{ dev_users }}"
+      when: ansible_facts['selinux']['mode'] == "permissive"

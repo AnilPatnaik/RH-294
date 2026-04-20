@@ -1,0 +1,19 @@
+---
+- name: Verify myvhost role service deployment
+  hosts: webservers
+  gather_facts: true
+
+  tasks:
+    - name: "Gather package facts"
+      ansible.builtin.package_facts:
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+
+    - name: Show the status of the httpd service
+      ansible.builtin.debug:
+        msg:
+          - "The httpd package is installed in {{ ansible_facts.packages['httpd'][0]['version'] }} version"
+          - "State for the httpd service: {{ ansible_facts['services']['httpd.service']['state'] }}"
+          - "Status for the httpd service: {{ ansible_facts['services']['httpd.service']['status'] }}"
